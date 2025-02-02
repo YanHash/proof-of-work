@@ -13,3 +13,16 @@
   Enable the insertion of new nodes and returns if the address has been added (cannot add twice the same address)
 * **nodeExists** (address) => boolean
   Fetches in the nodes array if the provided node already exists and returns this information
+
+## Updates : 
+**blockchain.init()**
+Le previous hash et la proof of work dépandent directement du champs transaction de chaque bloc et celui du précédant, de ce fait, la blockchain n'est jamais valide à cause des 2 premiers blocs et du retour "false" de **generateProof** et **calculateHash** losque ces fontions recevoient une transaction vide (ce qui est le cas avec l'initiation existante de la blockchain)
+
+**blockchain.newTransaction()**
+NewTransaction engendre à présent un nouveau bloc. De par la fonctionnement de la fonciton isValidChain qui vérifie uniquement la transaction d'indice 0 de chaque bloc, il fallait que chaque bloc porte une seule transaction.
+
+**chain.isValidChain()**
+Un import était mannquant : **validator.calculateHash()**
+
+**route : /transaction**
+La logique n'était pas encore implémentée
