@@ -9,7 +9,7 @@ var ValidatorHandler = function ValidatorHandler(){
     if(!transaction || transaction.sender === undefined || transaction.receiver === undefined){
       return false;
     }
-    return generateHashFromString(transaction.sender)+"-"+generateHashFromString(transaction.receiver)+"-0"+(new Date().getTime().toString(16));
+    return generateHashFromString(transaction.sender)+"-"+generateHashFromString(transaction.receiver); //+"-0"+(new Date().getTime().toString(16));
   }
 
   function generateProof(transaction){
@@ -32,8 +32,19 @@ var ValidatorHandler = function ValidatorHandler(){
     return result;
   }
 
-  function generateIntegerFromAddress(address){
-    return parseInt(address.match(/[0-9]+/g).join(""));
+  function generateIntegerFromAddress(address) {
+    if (typeof address !== 'string') {
+      console.error(`Adresse invalide : attendu une chaîne, trouvé : ${address}`);
+      return NaN; 
+    }
+  
+    var match = address.match(/[0-9]+/g);
+    if (!match) {
+      console.warn("Aucun nombre trouvé dans l'adresse :", address);
+      return NaN; 
+    }
+  
+    return parseInt(match.join(""));
   }
 
   if(ValidatorHandler.caller != ValidatorHandler.getInstance){
