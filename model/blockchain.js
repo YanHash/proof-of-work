@@ -1,6 +1,8 @@
 var addressUtilities = require('../utils/address');
 var arrayUtilities = require('../utils/array');
+var ChainUtilities = require('../utils/chain');
 var validator = require('../utils/validator');
+
 
 var blockchain = function blockchain(){
 
@@ -77,7 +79,44 @@ var blockchain = function blockchain(){
   }
 
   function checkChain(){
+    /* Le hash précédent de chaque bloc correspond bien au hash du bloc précédent */
+    var isValidChain = ChainUtilities.isValidChain(self.chain);
+    if (!isValidChain) { 
+      console.error("La chaîne globale est invalide.");
+      return [];
+    }
     
+    for (var i = 0; i < self.chain.length; i++) {
+      const block = self.chain[i];
+      /* La structure de chaque bloc est complète */
+      if (
+        !block.index || 
+        !block.timestamp || 
+        !block.transaction || 
+        !block.proof || 
+        !block.previousHash
+      ) { 
+        console.error(`Structure du bloc ${block.index} invalide.`);
+        return []; 
+      }
+
+      /* La preuve (proof) de chaque bloc est valide */
+      var generatedProof = validator.generateProof(block.transaction[0]);
+      var givenProof = block.proof;
+      if (generatedProof != givenProof) { 
+        console.error(`La preuve du bloc ${block.index} est invalide.`);
+        return []; 
+      }
+
+      /* Les indices des blocs sont séquentiels */
+      if (i > 0 && block.index !== self.chain[i - 1].index + 1) {
+        console.error(`Les indices ne sont pas séquentiels au bloc ${block.index}.`);
+        return [];
+      };
+    }
+    
+    /* Chaine valide */
+    return self.chain;
   }
 
 
