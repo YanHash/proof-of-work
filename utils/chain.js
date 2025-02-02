@@ -1,3 +1,5 @@
+var validator = require('../utils/validator');
+
 var validatorUtilities = require('./validator');
 
 var ChainUtilities = function ChainUtilities(){
@@ -9,7 +11,7 @@ var ChainUtilities = function ChainUtilities(){
   function isValidChain(chain){
     if(chain.length>0){
       for (var i = 1; i < chain.length; i++) {
-        var lastBlockHash = calculateHash(chain[i-1]);
+        var lastBlockHash = validator.calculateHash(chain[i-1]);
         if(lastBlockHash !== chain[i].previousHash){
           return false;
         }
