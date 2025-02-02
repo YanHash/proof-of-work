@@ -40,7 +40,13 @@ router.post('/nodes/register', function(req, res, next) {
 });
 
 router.post('/transactions', function(req, res, next){
+  const { sender, receiver, amount } = req.body;
+  const transaction = blockchain.newTransaction(sender, receiver, amount);
 
+  res.status(201).send({
+    message: "Transaction added successfully!",
+    transaction: transaction
+  });
 });
 
 router.post('/checkChain', function(req, res, next){
