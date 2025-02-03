@@ -26,3 +26,41 @@ Un import était mannquant : **validator.calculateHash()**
 
 **route : /transaction**
 La logique n'était pas encore implémentée
+
+
+# Analse critique de la proof of work : 
+
+## Faiblesses de l'implémentation : 
+### La PoW dépendant fortement de l'adresse
+La fonction `generateProof` fait appel à `generateIntegerFromAddress` qui extrait des nombres depuis une adresse en chaine de caractères. Le problème de cette implémentation vient du fait qu'un attaquant pourrait manipuler l'adresse pour influencer la valeur de la PoW
+
+### Pas de vérification des montants 
+Aucune vérification dans la fonction ne s'assure de la validité ou la cohérence du montant (il pourrait être négatif ou avec une très grande décimal) ce qui rend la blockchain vulnérable aux attaques par dépassement de capacité
+
+### Le cas du minage
+Quand un noeud mine, la fonction de PoW reçoit un sender égal à 0 ainsi celle-ci est calculée uniquement en se basant sur le montant qui est fixe et au noeud qui reçoit le montant ainsi ce qui réduit déjà les paramétres rendant la PoW prévisible et donc manipulable. Normalement, une blockchain s'assure que les transactions proviennent d'un véritable expéditeur légitime si le sender est à 0 il n'y a alors aucune preuve cryptographique pour s'assurer que la transaction est légitime
+
+### Absence de validation cryptographique 
+Le calcule implémenté dans la PoW est assez simples avec des paramètres connus, on n'utilise pas de fonctions cryptographiques (connues et approuvées), de ce fait, ça rend la blockchaioe attaquable en produisant des PoW valides
+
+# Recommandations :
+- Remplacer les opérations simples de la PoW par une méthode qui utilise des primitives cryptographiques
+- AJouter un nonce à la PoW pour introduire un paramètre inconnu et infalcifiable 
+- Intégration de signatures comme ECDSA
+- Vérification strictes du format des champs sender et receiver, vérification de la validité du montant (positif, non nul, avec un nombre de décimal maximal, vérifier si l'adresse émettrice dispose du montant)
+- Se défaire de l'usage de `generateIntegerFromAddress` car elle ouvre la porte à des manipulations, on pourrait utiliser à la place une foction de hachage pour obtenir un identifiant unique comme avec SHA-256
+- Revoir le cas du minage avec sender égal à 0 et exiger une signature numérique des mineurs pour prouver que la transaction est légitime
+
+-> On peut proposer cette petite amélioration : 
+```
+const crypto = require('crypto');
+
+function generateProof(transaction, nonce) {
+  if (!transaction || !transaction.sender || !transaction.receiver || typeof transaction.amount !== 'number' || transaction.amount <= 0) {
+    throw new Error("Transaction invalide");
+  }
+
+  const data = `${transaction.sender}:${transaction.receiver}:${transaction.amount}:${nonce}`;
+  return crypto.createHash('sha256').update(data).digest('hex');
+}
+```
