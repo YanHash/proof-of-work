@@ -51,7 +51,7 @@ var blockchain = function blockchain() {
 
     var lastBlock = self.chain[self.chain.length - 1];
     var transaction = newTransaction("0", miner, 1);
-    var proof = validator.generateProof(transaction);
+    var proof = validator.generateProof(self.currentTransactions[0]);
     var previousHash = validator.calculateHash(lastBlock.transaction[0]);
     return newBlock(proof, previousHash);
   }
@@ -82,14 +82,6 @@ var blockchain = function blockchain() {
       amount: amount
     };
     self.currentTransactions.push(transaction);
-
-    console.log(typeof self.chain[self.chain.length-1].transaction[0])
-
-    var proof = validator.generateProof(transaction);
-    var prevHash = validator.calculateHash(self.chain[self.chain.length-1].transaction[0]);
-    self.newBlock(proof, prevHash)
-
-    self.currentTransactions = [];
     return transaction;
   }
 
